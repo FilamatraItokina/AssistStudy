@@ -1,0 +1,38 @@
+# Configuration Render.com pour déploiement automatique
+# Ce fichier est optionnel - vous pouvez aussi configurer via l'interface web
+
+services:
+  # Backend API
+  - type: web
+    name: assistant-etudiant-api
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+    healthCheckPath: /api/auth/me
+
+  # Frontend Static Site
+  - type: web
+    name: assistant-etudiant-app
+    env: static
+    region: frankfurt
+    plan: free
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://assistant-etudiant-api.onrender.com
