@@ -26,6 +26,11 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const fetchUser = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch('/api/auth/me', {
         headers: {
@@ -33,11 +38,21 @@ export const AuthProvider = ({ children }) => {
         }
       });
       
-      if (res.ok) {
-        const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const responseText = await res.text();
+      if (!responseText) {
+        throw new Error('Empty response from server');
+      }
+      
+      const data = JSON.parse(responseText);
+      
+      if (data?.user) {
         setUser(data.user);
       } else {
-        logout();
+        throw new Error('Invalid user data in response');
       }
     } catch (error) {
       console.error('Erreur récupération utilisateur:', error);
@@ -54,12 +69,27 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password })
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || 'Erreur de connexion');
+    const responseText = await res.text();
+    let data;
+    
+    if (!responseText) {
+      throw new Error('Empty response from server');
     }
 
-    const data = await res.json();
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      throw new Error('Invalid response format from server');
+    }
+
+    if (!res.ok) {
+      throw new Error(data?.error || 'Erreur de connexion');
+    }
+
+    if (!data?.token || !data?.user) {
+      throw new Error('Données utilisateur manquantes dans la réponse');
+    }
+
     setToken(data.token);
     setUser(data.user);
     localStorage.setItem('token', data.token);
@@ -73,12 +103,27 @@ export const AuthProvider = ({ children }) => {
       body: JSON.stringify({ email, password, name })
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.error || 'Erreur d\'inscription');
+    const responseText = await res.text();
+    let data;
+    
+    if (!responseText) {
+      throw new Error('Empty response from server');
     }
 
-    const data = await res.json();
+    try {
+      data = JSON.parse(responseText);
+    } catch (error) {
+      throw new Error('Invalid response format from server');
+    }
+
+    if (!res.ok) {
+      throw new Error(data?.error || 'Erreur d\'inscription');
+    }
+
+    if (!data?.token || !data?.user) {
+      throw new Error('Données utilisateur manquantes dans la réponse');
+    }
+
     setToken(data.token);
     setUser(data.user);
     localStorage.setItem('token', data.token);
