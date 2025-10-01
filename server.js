@@ -23,8 +23,8 @@ initDatabase();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  // Ajoutez ici l'URL de votre frontend sur Render
-  // Ex: 'https://assistant-etudiant-app.onrender.com'
+
+  'https://assistant-etudiant-app.onrender.com'
 ];
 
 // Récupérer l'origine depuis les variables d'environnement si définie
