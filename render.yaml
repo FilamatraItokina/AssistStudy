@@ -1,6 +1,4 @@
 # Configuration Render.com pour déploiement automatique
-# Ce fichier est optionnel - vous pouvez aussi configurer via l'interface web
-
 services:
   # Backend API
   - type: web
@@ -19,7 +17,9 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
-    healthCheckPath: /api/auth/me
+      - key: FRONTEND_URL
+        value: https://assistant-etudiant-app.onrender.com
+    healthCheckPath: /api/auth/check
 
   # Frontend Static Site
   - type: web
@@ -36,3 +36,5 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://assistant-etudiant-api.onrender.com
+      - key: NODE_ENV
+        value: production

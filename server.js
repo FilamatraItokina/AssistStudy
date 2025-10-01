@@ -23,29 +23,47 @@ initDatabase();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-
   'https://assistant-etudiant-app.onrender.com'
 ];
 
 // Récupérer l'origine depuis les variables d'environnement si définie
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+  // Supprimer le / à la fin si présent
+  const frontendUrl = process.env.FRONTEND_URL.endsWith('/') 
+    ? process.env.FRONTEND_URL.slice(0, -1)
+    : process.env.FRONTEND_URL;
+  
+  allowedOrigins.push(frontendUrl);
+  console.log('URL frontend autorisée:', frontendUrl);
 }
 
+console.log('Origines autorisées:', allowedOrigins);
+
+// Configuration CORS
 app.use(cors({
   origin: function(origin, callback) {
     // Autoriser les requêtes sans origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('Origin non autorisée:', origin);
-      callback(new Error('Not allowed by CORS'));
+    if (allowedOrigins.some(allowedOrigin => 
+      origin === allowedOrigin || 
+      origin.startsWith(allowedOrigin + '/') ||
+      origin === `https://${allowedOrigin}` ||
+      origin === `http://${allowedOrigin}`
+    )) {
+      return callback(null, true);
     }
+    
+    console.log('Origin non autorisée:', origin);
+    return callback(new Error('Not allowed by CORS'));
   },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
+// Gestion des pré-vols OPTIONS
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -60,6 +78,10 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/grades', gradeRoutes);
+
+// Route de vérification de l'API
+const healthCheckRouter = require('./src/routes/healthCheck');
+app.use('/api/auth', healthCheckRouter);
 
 // Route racine
 app.get('/', (req, res) => {

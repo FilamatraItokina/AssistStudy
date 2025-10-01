@@ -12,10 +12,11 @@ const essentialFiles = [
   'server.js',
   'package.json',
   '.gitignore',
-  '.env',
+  '.env.example',
   'client/package.json',
   'client/vite.config.js',
-  'client/src/utils/api.js'
+  'client/.env.example',
+  'render.yaml'
 ];
 
 console.log('📁 Fichiers essentiels:');
@@ -31,7 +32,7 @@ essentialFiles.forEach(file => {
 // Vérifier .gitignore
 console.log('\n📝 Vérification .gitignore:');
 const gitignore = fs.readFileSync(path.join(__dirname, '.gitignore'), 'utf8');
-const requiredIgnores = ['.env', 'node_modules', 'data.sqlite'];
+const requiredIgnores = ['.env', 'node_modules', 'data.sqlite', 'dist'];
 requiredIgnores.forEach(pattern => {
   if (gitignore.includes(pattern)) {
     console.log(`  ✅ ${pattern} est ignoré`);
@@ -44,13 +45,51 @@ requiredIgnores.forEach(pattern => {
 // Vérifier package.json scripts
 console.log('\n⚙️  Scripts package.json:');
 const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
-if (pkg.scripts && pkg.scripts.server) {
-  console.log('  ✅ Script "server" défini');
-} else {
-  console.log('  ❌ Script "server" manquant');
+const requiredScripts = ['start', 'server', 'client', 'dev', 'build'];
+
+requiredScripts.forEach(script => {
+  if (pkg.scripts && pkg.scripts[script]) {
+    console.log(`  ✅ Script "${script}" défini`);
+  } else {
+    console.log(`  ❌ Script "${script}" manquant`);
+    errors++;
+  }
+});
+
+// Vérifier les variables d'environnement requises
+console.log('\n🌍 Variables d\'environnement requises:');
+const envExample = fs.readFileSync(path.join(__dirname, '.env.example'), 'utf8');
+const requiredEnvVars = [
+  'NODE_ENV',
+  'PORT',
+  'JWT_SECRET',
+  'JWT_EXPIRES_IN',
+  'FRONTEND_URL'
+];
+
+requiredEnvVars.forEach(envVar => {
+  if (envExample.includes(envVar)) {
+    console.log(`  ✅ ${envVar} est documenté`);
+  } else {
+    console.log(`  ❌ ${envVar} manquant dans .env.example`);
+    errors++;
+  }
+});
+
+// Vérifier la configuration CORS
+console.log('\n🔄 Vérification de la configuration CORS:');
+try {
+  const serverContent = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
+  if (serverContent.includes('cors(') && serverContent.includes('allowedOrigins')) {
+    console.log('  ✅ Configuration CORS détectée');
+  } else {
+    console.log('  ❌ Configuration CORS manquante ou incomplète');
+    errors++;
+  }
+} catch (err) {
+  console.log('  ❌ Impossible de vérifier la configuration CORS');
   errors++;
 }
-
 // Vérifier les dépendances
 console.log('\n📦 Dépendances critiques:');
 const criticalDeps = ['express', 'cors', 'sqlite3', 'jsonwebtoken', 'bcrypt', 'dotenv'];
