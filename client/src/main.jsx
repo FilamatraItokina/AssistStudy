@@ -26,14 +26,18 @@ const Root = () => {
   );
 };
 
+const AppWithProviders = () => (
+  <BrowserRouter>
+    <ThemeProvider>
+      <AuthProvider>
+        <Root />
+      </AuthProvider>
+    </ThemeProvider>
+  </BrowserRouter>
+);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <Root />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
+    <AppWithProviders />
   </React.StrictMode>
 );

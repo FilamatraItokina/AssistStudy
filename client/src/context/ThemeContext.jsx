@@ -18,19 +18,27 @@ export const ThemeProvider = ({ children }) => {
   // Appliquer le thème au chargement et lors des changements
   useEffect(() => {
     const root = window.document.documentElement;
+    console.log('Applying theme:', theme, 'to root element');
     
     // Supprimer les classes précédentes
     root.classList.remove('light', 'dark');
     
     // Ajouter la classe du thème actuel
     root.classList.add(theme);
+    console.log('Root classes after update:', root.className);
     
     // Sauvegarder la préférence
     localStorage.setItem('theme', theme);
+    console.log('Theme saved to localStorage:', theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    console.log('Toggling theme from', theme, 'to', theme === 'light' ? 'dark' : 'light');
+    setTheme(prevTheme => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      console.log('Theme set to', newTheme);
+      return newTheme;
+    });
   };
 
   return (

@@ -25,7 +25,7 @@ const InputField = ({
 
   const inputClasses = [
     'block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800',
-    'px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
+    'px-3 py-2 text-sm sm:text-base text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
     'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
     'transition duration-200',
     hasError
@@ -33,8 +33,8 @@ const InputField = ({
       : 'focus:ring-primary-500 focus:border-primary-500',
     disabled && 'opacity-60 cursor-not-allowed',
     fullWidth ? 'w-full' : '',
-    startIcon ? 'pl-10' : 'pl-4',
-    endIcon ? 'pr-10' : 'pr-4',
+    startIcon ? 'pl-9 sm:pl-10' : 'pl-3 sm:pl-4',
+    endIcon ? 'pr-9 sm:pr-10' : 'pr-3 sm:pr-4',
     inputClassName,
   ]
     .filter(Boolean)
