@@ -39,31 +39,29 @@ if (process.env.FRONTEND_URL) {
 
 console.log('Origines autorisées:', allowedOrigins);
 
-// Configuration CORS
-app.use(cors({
-  origin: function(origin, callback) {
-    // Autoriser les requêtes sans origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.some(allowedOrigin => 
-      origin === allowedOrigin || 
-      origin.startsWith(allowedOrigin + '/') ||
-      origin === `https://${allowedOrigin}` ||
-      origin === `http://${allowedOrigin}`
-    )) {
-      return callback(null, true);
-    }
-    
-    console.log('Origin non autorisée:', origin);
-    return callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-
-// Gestion des pré-vols OPTIONS
-app.options('*', cors());
+// Configuration CORS personnalisée
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.some(allowedOrigin => 
+    origin === allowedOrigin || 
+    (origin && (origin.startsWith(allowedOrigin + '/') ||
+    origin === `https://${allowedOrigin}` ||
+    origin === `http://${allowedOrigin}`))
+  ) || !origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin || allowedOrigins[0]);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+  
+  // Répondre immédiatement aux requêtes OPTIONS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
