@@ -20,11 +20,23 @@ export const apiCall = async (url, options = {}) => {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur API');
+    let errorMessage = 'Erreur API';
+    try {
+      const errorData = await response.text();
+      if (errorData) {
+        const errorJson = JSON.parse(errorData);
+        errorMessage = errorJson.error || errorMessage;
+      }
+    } catch (e) {
+      // If we can't parse the error, use the status text
+      errorMessage = response.statusText || errorMessage;
+    }
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  // Handle empty responses
+  const text = await response.text();
+  return text ? JSON.parse(text) : null;
 };
 
 export const api = {
