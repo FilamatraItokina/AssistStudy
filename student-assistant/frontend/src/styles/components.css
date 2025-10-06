@@ -1,0 +1,24 @@
+/* Styles des composants réutilisables */
+.btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.6em 1.2em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: #1a4fa3;
+}
+.card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  padding: 1.2em;
+  margin-bottom: 1em;
+}
+[data-theme="dark"] .card {
+  background: #232323;
+}
